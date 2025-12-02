@@ -17,23 +17,23 @@
 <div id="map"></div>
 
 <script>
-  // Inizializzazione mappa stile chiaro
+  // Stile chiaro professionale
   const map = new maplibregl.Map({
     container: 'map',
-    style: 'https://demotiles.maplibre.org/style.json',
-    center: [-122.44, 37.76], // Vista su San Francisco
+    style: 'https://tiles.stadiamaps.com/styles/alidade_smooth.json',
+    center: [-122.44, 37.76],
     zoom: 11
   });
 
   map.on('load', () => {
 
-    // ===== 1. Import GeoJSON (confini San Francisco) =====
+    // ===== 1. Import GeoJSON =====
     map.addSource('area-test', {
       type: 'geojson',
       data: 'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/san-francisco.geojson'
     });
 
-    // ===== 2. Area colorata =====
+    // ===== 2. Aree colorate =====
     map.addLayer({
       id: 'area-fill',
       type: 'fill',
@@ -44,7 +44,7 @@
       }
     });
 
-    // ===== 3. Bordo dell’area =====
+    // ===== 3. Bordo =====
     map.addLayer({
       id: 'area-outline',
       type: 'line',
@@ -55,14 +55,29 @@
       }
     });
 
-    // ===== 4. Marker con popup =====
-    new maplibregl.Marker({ color: '#e63946' })
-      .setLngLat([-122.4194, 37.7749]) // Posizione nel centro di San Francisco
+    // ===== 4. Marker visibile solo da zoom ≥ 13 =====
+    const marker = new maplibregl.Marker({ color: '#e63946' })
+      .setLngLat([-122.4194, 37.7749])
       .setPopup(
         new maplibregl.Popup({ offset: 25 })
-          .setHTML('<h3>Marker di prova</h3><p>Popup funzionante!</p>')
+          .setHTML('<h3>Marker visibile solo con zoom</h3><p>Funziona!</p>')
       )
       .addTo(map);
+
+    // Nascondi marker inizialmente
+    marker.getElement().style.display = 'none';
+
+    // Mostra/nascondi marker in base allo zoom
+    map.on('zoom', () => {
+      const currentZoom = map.getZoom();
+      const markerElement = marker.getElement();
+
+      if (currentZoom >= 13) {
+        markerElement.style.display = 'block';
+      } else {
+        markerElement.style.display = 'none';
+      }
+    });
 
   });
 </script>
